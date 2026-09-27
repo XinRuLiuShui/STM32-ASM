@@ -3,4 +3,6 @@
 2、*thumb* 是什么
 3、什么是4字节对齐
 4、Off = 001000 这个我还是不理解
+
+5、arm-none-eabi-objdump -d build/main.elf  这个命令的输出，@ (8000024 <loop+0x2>)这些是什么意思
 * 02

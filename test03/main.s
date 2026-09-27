@@ -37,16 +37,6 @@ main:
     str r1, [r0]
 
 
-    /*--------------------------------
-     * 3. PC13 输出低电平
-     *
-     * GPIOC_BRR = 0x40011014
-     * bit13 = 1
-     *--------------------------------*/
-
-
-
-
 loop:
     ldr r0, =0x4001100C
     mov r1, #(1 << 13)
@@ -76,5 +66,5 @@ delay_loop:
     bx lr
 
 .size delay, . - delay
-        
+
 .size main, . - main
