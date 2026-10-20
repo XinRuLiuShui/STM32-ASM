@@ -99,50 +99,50 @@ main_loop:
     mov r1, #0
     str r1, [r0]
 
-    @ 发送字符 A
-    bl usart_send_a
+    @ 发送字符串
+    ldr r0, =message
+    bl usart_send_string
 
     @ 继续等待下一次中断
     b main_loop
 
-@ 发送 A、CR、LF
-.type usart_send_a, %function
 
-usart_send_a:
-    @ 发送 A
+@ 发送以 \0 结尾的字符串
+@ 输入：r0 = 字符串首地址
+.type usart_send_string, %function
+
+usart_send_string:
+    push {r4, lr}
+
+    @ r4 保存当前字符的地址
+    mov r4, r0
+
+send_string_loop:
+    @ 读取当前字符
+    ldrb r1, [r4]
+
+    @ 如果字符为 0，说明字符串结束
+    cmp r1, #0
+    beq send_string_done
+
+    @ 等待 USART1 的 TXE 置位
     ldr r0, =0x40013800
-wait_a:
-    ldr r1, [r0]
-    tst r1, #0x80
-    beq wait_a
 
+wait_txe:
+    ldr r2, [r0]
+    tst r2, #0x80
+    beq wait_txe
+
+    @ 将字符写入 USART1_DR
     ldr r0, =0x40013804
-    mov r1, #0x41
     str r1, [r0]
 
-    @ 发送 CR
-    ldr r0, =0x40013800
-wait_cr:
-    ldr r1, [r0]
-    tst r1, #0x80
-    beq wait_cr
+    @ 指向下一个字符
+    adds r4, r4, #1
+    b send_string_loop
 
-    ldr r0, =0x40013804
-    mov r1, #0x0D
-    str r1, [r0]
-
-    @ 发送 LF
-    ldr r0, =0x40013800
-wait_lf:
-    ldr r1, [r0]
-    tst r1, #0x80
-    beq wait_lf
-
-    ldr r0, =0x40013804
-    mov r1, #0x0A
-    str r1, [r0]
-
-    bx lr
+send_string_done:
+    pop {r4, pc}
 
 
 @ TIM2 中断服务程序
@@ -174,3 +174,8 @@ TIM2_IRQHandler:
 .align 2
 send_flag:
     .space 4
+
+.section .rodata
+.align 2
+message:
+    .asciz "TIM2 interrupt!\r\n"
