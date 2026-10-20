@@ -32,4 +32,21 @@ SECTIONS
         *(.rodata.*)
         . = ALIGN(4);
     } > FLASH
+
+    .data :
+    {
+        . = ALIGN(4);
+        *(.data)
+        *(.data.*)
+        . = ALIGN(4);
+    } > RAM AT > FLASH
+
+    .bss (NOLOAD) :
+    {
+        . = ALIGN(4);
+        *(.bss)
+        *(.bss.*)
+        *(COMMON)
+        . = ALIGN(4);
+    } > RAM
 }
